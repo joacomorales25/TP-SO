@@ -48,7 +48,7 @@ LT_END_TEST(InsertarAgregaEnOrden)
 
 // Tests Ejercicio 2
 
-/*LT_BEGIN_SUITE(TestsEjercicio2)
+LT_BEGIN_SUITE(TestsEjercicio2)
 
 HashMapConcurrente hM;
 
@@ -59,17 +59,17 @@ void set_up()
 void tear_down()
 {
 }
-//LT_END_SUITE(TestsEjercicio2)
+LT_END_SUITE(TestsEjercicio2)
 
-//LT_BEGIN_TEST(TestsEjercicio2, ValorEsCorrectoEnHashMapVacio)
-  ///  LT_CHECK_EQ(hM.valor("tiranosaurio"), 0);
-//LT_END_TEST(ValorEsCorrectoEnHashMapVacio)
+LT_BEGIN_TEST(TestsEjercicio2, ValorEsCorrectoEnHashMapVacio)
+     LT_CHECK_EQ(hM.valor("tiranosaurio"), 0);
+LT_END_TEST(ValorEsCorrectoEnHashMapVacio)
 
-//LT_BEGIN_TEST(TestsEjercicio2, ClavesEsCorrectoEnHashMapVacio)
+LT_BEGIN_TEST(TestsEjercicio2, ClavesEsCorrectoEnHashMapVacio)
     std::vector<std::string> actual = hM.claves();
     std::vector<std::string> expected = {};
     LT_CHECK_COLLECTIONS_EQ(actual.begin(), actual.end(), expected.begin());
-//LT_END_TEST(ClavesEsCorrectoEnHashMapVacio)
+LT_END_TEST(ClavesEsCorrectoEnHashMapVacio)
 
 LT_BEGIN_TEST(TestsEjercicio2, ValorEsCorrectoTrasUnaInsercion)
     hM.incrementar("tiranosaurio");
@@ -228,4 +228,3 @@ LT_END_TEST(CargarMultiplesArchivosFuncionaDosThreads)
 LT_BEGIN_AUTO_TEST_ENV()
     AUTORUN_TESTS()
 LT_END_AUTO_TEST_ENV()
-*/

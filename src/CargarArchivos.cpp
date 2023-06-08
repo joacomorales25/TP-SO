@@ -67,7 +67,7 @@ void cargarMultiplesArchivos(
             resto--;
         }
 
-        threads.emplace_back(thread(cargarArchivoThread, principio, fin, hashMap, std::ref(filePaths)));
+        threads.emplace_back(thread(cargarArchivoThread, principio, fin, std::ref(hashMap), std::ref(filePaths)));
 
         principio = fin;    // Iteramos hasta fin (no inclusive) en cargarArchivoThread
         fin = (fin + cantFilePathsPorThread > filePaths.size()) ? filePaths.size() : fin + cantFilePathsPorThread;
