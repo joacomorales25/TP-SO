@@ -16,7 +16,7 @@ def gen_palabras(letter, n):
                         f.write(p + "\n")
         else:
             with open(f"tests/random/random{n}.txt", "a", encoding= 'UTF-8') as f:
-                palabras = [p.strip() for p in palabras]
+                palabras = [p.strip() for p in palabras if p[0] != "ñ"]
                 palabras = random.sample(palabras, n)
                 for p in palabras:
                         f.write(p + "\n")

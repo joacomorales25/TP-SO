@@ -20,6 +20,7 @@ int cargarArchivo(
     std::string palabraActual;
 
     // Abro el archivo.
+    std:cout << "Abriendo archivo '" << filePath << "'" << std::endl;
     file.open(filePath, file.in);
     if (!file.is_open()) {
         std::cerr << "Error al abrir el archivo '" << filePath << "'" << std::endl;
