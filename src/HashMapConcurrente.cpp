@@ -93,44 +93,7 @@ hashMapPair HashMapConcurrente::maximo() {
     return *max;
 }
 
-void buscarMaximoThread(hashMapPair *max, std::mutex *procesados_mutex, vector<bool> *procesados, bool *termino, ListaAtomica<hashMapPair>* tabla[]) {
-    
-    while(!*termino){
-        procesados_mutex->lock();
 
-        int a_procesar=-1;
-        for(int i=0; i < procesados->size(); i++){
-            if(!(*procesados)[i]){
-                a_procesar=i;
-                break;
-            }
-        }
-
-        
-
-        if(a_procesar == -1){
-            *termino = true;
-            procesados_mutex->unlock();
-            return;
-        }
-
-        (*procesados)[a_procesar] = true;
-        procesados_mutex->unlock();
-        std::cout << "HAsta aca llego" << endl;
-        
-        //Proceso el indice a_procesar
-        auto it = tabla[a_procesar]->crearIt();
-        while (it.haySiguiente()){
-            if (it.siguiente().second > max->second) {
-                max->first = it.siguiente().first;
-                max->second = it.siguiente().second;
-            }
-            it.avanzar();
-        }
-        
-    }
-
-}
 
 void buscarMaximoThread(int inicio, int fin, hashMapPair max, ListaAtomica<hashMapPair> tabla[], vector<bool>& visitados, std::mutex& chequeo) {
     for (unsigned int index = inicio; index < fin; index++) {
