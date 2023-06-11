@@ -36,11 +36,11 @@ void HashMapConcurrente::incrementar(std::string clave) {
             mutexes[index].unlock();
             return;
         }
+    mutexes[index].unlock();
     hashMapPair *par = new hashMapPair();
     par->first = clave;
     par->second = 1;
     lista->insertar(*par);
-    mutexes[index].unlock();
     }
 
 
@@ -93,8 +93,58 @@ hashMapPair HashMapConcurrente::maximo() {
     return *max;
 }
 
-void buscarMaximoThread(int inicio, int fin, hashMapPair *max, ListaAtomica<hashMapPair>* tabla[]) {
+void buscarMaximoThread(hashMapPair *max, std::mutex *procesados_mutex, vector<bool> *procesados, bool *termino, ListaAtomica<hashMapPair>* tabla[]) {
+    
+    while(!*termino){
+        procesados_mutex->lock();
+
+        int a_procesar=-1;
+        for(int i=0; i < procesados->size(); i++){
+            if(!(*procesados)[i]){
+                a_procesar=i;
+                break;
+            }
+        }
+
+        
+
+        if(a_procesar == -1){
+            *termino = true;
+            procesados_mutex->unlock();
+            return;
+        }
+
+        (*procesados)[a_procesar] = true;
+        procesados_mutex->unlock();
+        std::cout << "HAsta aca llego" << endl;
+        
+        //Proceso el indice a_procesar
+        auto it = tabla[a_procesar]->crearIt();
+        while (it.haySiguiente()){
+            if (it.siguiente().second > max->second) {
+                max->first = it.siguiente().first;
+                max->second = it.siguiente().second;
+            }
+            it.avanzar();
+        }
+        
+    }
+
+}
+
+void buscarMaximoThread(int inicio, int fin, hashMapPair max, ListaAtomica<hashMapPair> tabla[], vector<bool>& visitados, std::mutex& chequeo) {
     for (unsigned int index = inicio; index < fin; index++) {
+        bool puedo = false;
+        chequeo.lock();
+        if(!visitados[index]){
+            visitados[index] = true;
+        }else{
+            puedo = true;
+        }
+        chequeo.unlock();
+
+        if(puedo) continue;
+
         auto it = tabla[index]->crearIt();
         while (it.haySiguiente())
         {
@@ -104,6 +154,28 @@ void buscarMaximoThread(int inicio, int fin, hashMapPair *max, ListaAtomica<hash
             }
 
             it.avanzar();
+        }
+    }
+
+    for(int i = 0; i < visitados.size(); i++){
+        bool busco = false;
+        chequeo.lock();
+        if(!visitados[i]){
+            visitados[i] = true;
+            busco = true;
+        }
+        chequeo.unlock();
+        if(busco){
+        auto it = tabla[i]->crearIt();
+        while (it.haySiguiente())
+        {
+            if (it.siguiente().second > max->second) {
+                max->first = it.siguiente().first;
+                max->second = it.siguiente().second;
+            }
+
+            it.avanzar();
+        }
         }
     }
 }
@@ -120,6 +192,8 @@ hashMapPair HashMapConcurrente::maximoParalelo(unsigned int cantThreads) {
 
     vector<thread> threads;
     hashMapPair maximos[cantThreads];
+    mutex chequeo;
+    vector<bool> procesados(cantLetras, false);
     for (unsigned int i = 0; i < cantThreads; i++) {
         if (resto > 0)
         {
@@ -127,7 +201,7 @@ hashMapPair HashMapConcurrente::maximoParalelo(unsigned int cantThreads) {
             resto--;
         }
 
-        threads.emplace_back(thread(buscarMaximoThread, principio, fin, &maximos[i], this->tabla));
+        threads.emplace_back(thread(buscarMaximoThread, principio, fin, &maximos[i], this->tabla, std::ref(procesados), std::ref(chequeo)));
 
         principio = fin;    // Iteramos hasta fin (no inclusive) en buscarMaximoThread
         fin = (fin + cantListasPorThread > cantLetras) ? cantLetras : fin + cantListasPorThread;
